@@ -30,13 +30,33 @@ export default function LoginPage() {
       });
 
       if (response.ok) {
+        const data = await response.json();
+
+        // Periksa apakah pesan dari server menunjukkan "user not found"
+        if (data.message && data.message.toLowerCase() === "user not found") {
+          toast({
+            title: "Error",
+            description: "User not found. Please check your credentials.",
+            variant: "destructive",
+          });
+          return; // Jangan lanjutkan proses login jika user tidak ditemukan
+        }
+
+        // Jika user ditemukan dan login berhasil, simpan access_token
+        const accessToken = data.access_token;
+
+        // Simpan access_token ke localStorage
+        localStorage.setItem("access_token", accessToken);
+
         toast({
           title: "Success",
           description: "Login successful!",
           variant: "default",
         });
+
         router.push("/about"); // Arahkan ke halaman /about setelah login berhasil
       } else {
+        // Jika response tidak sukses (misalnya status selain 200 atau 201)
         const data = await response.json();
         toast({
           title: "Error",
